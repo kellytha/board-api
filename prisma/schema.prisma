@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  name String
+  password String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+  boards Board[]
+  comments Comment[]
+}
+
+model Board {
+  id Int @id @default(autoincrement())
+  title String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int
+  user User @relation(fields:[userId], references: [id], onDelete: Cascade)
+
+  columns Column[] 
+}
+
+model Column{
+  id Int @id @default(autoincrement())
+  title String
+  order Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  boardId Int
+  board Board @relation(fields: [boardId], references:[id],onDelete: Cascade)
+
+  cards Card[]
+
+}
+
+model Card {
+  id Int @id @default(autoincrement())
+  title String
+  description String?
+  dueDate DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  columnId Int
+  column Column @relation(fields: [columnId], references: [id], onDelete: Cascade)
+
+  tags CardTag[]
+  comments Comment[]
+}
+
+model Tag {
+  id Int @id @default(autoincrement())
+  name String
+  color String? 
+  createdAt DateTime @default(now())
+
+  cards CardTag[]
+}
+
+model CardTag{
+  cardId Int
+  tagId Int
+
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([cardId, tagId])
+}
+
+model Comment{
+  id Int @id @default(autoincrement())
+  content String 
+  createdAt DateTime @default(now())
+
+  cardId Int
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
