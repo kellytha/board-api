@@ -3,7 +3,7 @@ const cors = require("cors");
 const compression = require("compression");
 
 const routes = require("./routes");
-const errorHandler = require("./core/errors/errorHandler");
+const errorHandler = require("./core/middlewares/errorHandler");
 
 const app = express();
 
@@ -12,12 +12,10 @@ const app = express();
 app.use(cors()); 
 app.use(express.json({ limit: "10mb" }));
 app.use(compression());
-
+app.use(errorHandler);
 
 // API Routes
 app.use("/api", routes);
 
-// Global Error Handler
-app.use(errorHandler);
 
 module.exports = app;
